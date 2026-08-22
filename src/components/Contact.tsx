@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useForm } from "@formspree/react";
 import { profile } from "../data";
 import Section from "./Section";
 
@@ -13,13 +14,50 @@ export default function Contact() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({});
 
-  function handleSubmit(e: React.FormEvent) {
+  const formId = import.meta.env.VITE_FORMSPREE_FORM_ID || "";
+  const [formspreeState, sendToFormspree, resetFormspree] = useForm(formId);
+
+  useEffect(() => {
+    if (formspreeState.succeeded) {
+      setName("");
+      setEmail("");
+      setMessage("");
+      setErrors({});
+    }
+  }, [formspreeState.succeeded]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const subject = encodeURIComponent(`Portfolio contact from ${name || "your site"}`);
-    const body = encodeURIComponent(`${message}\n\n— ${name}${email ? ` (${email})` : ""}`);
-    window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
-  }
+
+    const newErrors: typeof errors = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Name is required";
+    }
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!message.trim()) {
+      newErrors.message = "Message is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+
+    if (!formId) {
+      console.warn("VITE_FORMSPREE_FORM_ID is missing. Submission will fail.");
+    }
+
+    await sendToFormspree(e);
+  };
 
   return (
     <Section id="contact" eyebrow="LET'S TALK" title="Contact">
@@ -41,47 +79,118 @@ export default function Contact() {
           />
 
           <p className="mb-6 max-w-md text-sm leading-relaxed" style={{ color: "var(--ink-muted)" }}>
-            A role, a project, or just a hello — this opens straight in your email client.
+            A role, a project, or just a hello — drop me a message and I'll get back to you soon.
           </p>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              type="text"
-              placeholder="Your name"
-              required
-              className="rounded-xl border px-4 py-3 text-sm outline-none"
-              style={{ borderColor: "var(--line-strong)", background: "var(--bg)", color: "var(--ink)" }}
-            />
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              placeholder="Your email"
-              required
-              className="rounded-xl border px-4 py-3 text-sm outline-none"
-              style={{ borderColor: "var(--line-strong)", background: "var(--bg)", color: "var(--ink)" }}
-            />
-          </div>
+          {formspreeState.succeeded ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <div
+                className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border text-lg"
+                style={{ borderColor: "var(--blue)", color: "var(--blue)" }}
+              >
+                ✓
+              </div>
+              <h4 className="font-display text-lg font-semibold tracking-tight mb-2">Message Sent</h4>
+              <p className="text-sm max-w-sm leading-relaxed mb-6" style={{ color: "var(--ink-muted)" }}>
+                Message sent successfully. I'll get back to you soon.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  resetFormspree();
+                  setName("");
+                  setEmail("");
+                  setMessage("");
+                  setErrors({});
+                }}
+                className="rounded-full px-5 py-2 text-xs font-mono border tracking-wider transition-transform hover:-translate-y-0.5 cursor-pointer"
+                style={{ borderColor: "var(--line-strong)", color: "var(--ink)" }}
+              >
+                Send another message
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col">
+                  <input
+                    name="name"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                    }}
+                    type="text"
+                    placeholder="Your name"
+                    className="rounded-xl border px-4 py-3 text-sm outline-none"
+                    style={{ borderColor: "var(--line-strong)", background: "var(--bg)", color: "var(--ink)" }}
+                  />
+                  {errors.name && (
+                    <span className="font-mono text-[10px] mt-1 text-left" style={{ color: "var(--red)" }}>
+                      {errors.name}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-col">
+                  <input
+                    name="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                    }}
+                    type="email"
+                    placeholder="Your email"
+                    className="rounded-xl border px-4 py-3 text-sm outline-none"
+                    style={{ borderColor: "var(--line-strong)", background: "var(--bg)", color: "var(--ink)" }}
+                  />
+                  {errors.email && (
+                    <span className="font-mono text-[10px] mt-1 text-left" style={{ color: "var(--red)" }}>
+                      {errors.email}
+                    </span>
+                  )}
+                </div>
+              </div>
 
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="What are we building?"
-            required
-            rows={5}
-            className="mt-4 w-full resize-y rounded-xl border px-4 py-3 text-sm outline-none"
-            style={{ borderColor: "var(--line-strong)", background: "var(--bg)", color: "var(--ink)" }}
-          />
+              <div className="flex flex-col mt-4">
+                <textarea
+                  name="message"
+                  value={message}
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    if (errors.message) setErrors((prev) => ({ ...prev, message: undefined }));
+                  }}
+                  placeholder="What are we building?"
+                  rows={5}
+                  className="w-full resize-y rounded-xl border px-4 py-3 text-sm outline-none"
+                  style={{ borderColor: "var(--line-strong)", background: "var(--bg)", color: "var(--ink)" }}
+                />
+                {errors.message && (
+                  <span className="font-mono text-[10px] mt-1 text-left" style={{ color: "var(--red)" }}>
+                    {errors.message}
+                  </span>
+                )}
+              </div>
 
-          <button
-            type="submit"
-            className="mt-5 rounded-full px-6 py-3 text-sm font-medium text-white transition-transform hover:-translate-y-0.5"
-            style={{ background: "var(--red)" }}
-          >
-            Send message →
-          </button>
+              {formspreeState.errors && (
+                <div
+                  className="mt-4 p-3 rounded-xl border text-xs font-mono"
+                  style={{ borderColor: "var(--red)", background: "var(--red-soft)", color: "var(--ink)" }}
+                >
+                  Something went wrong. Please try again.
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={formspreeState.submitting}
+                className="mt-5 rounded-full px-6 py-3 text-sm font-medium text-white transition-transform hover:-translate-y-0.5 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+                style={{ background: "var(--red)" }}
+              >
+                {formspreeState.submitting ? "Sending..." : "Send message →"}
+              </button>
+            </>
+          )}
         </form>
 
         <div
