@@ -1,52 +1,85 @@
 /**
- * A black widow spider silhouette, dangling from a single thread in the
- * corner web. Purely decorative — no click interaction, gentle idle sway.
+ * A real Spider-Man visual hanging upside-down from a thin web line.
+ * It is positioned in the upper right viewport as an Easter egg.
  */
 export default function CornerFigure({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`corner-figure-swing ${className}`}
-      style={{
-        position: "absolute",
-        top: "6%",
-        right: "9%",
-        width: "min(14vw, 150px)",
-        pointerEvents: "none",
-        zIndex: 1,
-      }}
+      className={`spiderman-container ${className}`}
       aria-hidden="true"
     >
-      <svg viewBox="0 0 240 260" style={{ width: "100%", height: "auto", overflow: "visible" }}>
-        <line x1="120" y1="-30" x2="120" y2="70" stroke="var(--line-strong)" strokeWidth="1" opacity="0.7" />
+      {/* Thin web line */}
+      <div className="spiderman-web" />
 
-        <g transform="translate(120 110)">
-          {/* legs, thin curved strokes, four per side */}
-          <path d="M-14 -6 Q -70 -30 -100 -70" fill="none" stroke="#0d0f14" strokeWidth="3" strokeLinecap="round" />
-          <path d="M-16 8 Q -80 6 -112 -10" fill="none" stroke="#0d0f14" strokeWidth="3" strokeLinecap="round" />
-          <path d="M-14 24 Q -74 44 -100 78" fill="none" stroke="#0d0f14" strokeWidth="3" strokeLinecap="round" />
-          <path d="M-10 40 Q -56 66 -70 104" fill="none" stroke="#0d0f14" strokeWidth="3" strokeLinecap="round" />
+      {/* Spider-Man character image */}
+      <img
+        src="/spiderman.png"
+        alt="Spider-Man Easter Egg"
+        className="spiderman-img"
+      />
 
-          <path d="M14 -6 Q 70 -30 100 -70" fill="none" stroke="#0d0f14" strokeWidth="3" strokeLinecap="round" />
-          <path d="M16 8 Q 80 6 112 -10" fill="none" stroke="#0d0f14" strokeWidth="3" strokeLinecap="round" />
-          <path d="M14 24 Q 74 44 100 78" fill="none" stroke="#0d0f14" strokeWidth="3" strokeLinecap="round" />
-          <path d="M10 40 Q 56 66 70 104" fill="none" stroke="#0d0f14" strokeWidth="3" strokeLinecap="round" />
-
-          {/* body: abdomen + smaller cephalothorax */}
-          <ellipse cx="0" cy="22" rx="27" ry="36" fill="#0d0f14" />
-          <ellipse cx="0" cy="-28" rx="15" ry="13" fill="#0d0f14" />
-        </g>
-      </svg>
       <style>{`
-        .corner-figure-swing {
-          transform-origin: 50% -30px;
-          animation: cornerFigureSway 6.5s ease-in-out infinite;
+        .spiderman-container {
+          position: absolute;
+          top: 0;
+          right: 12%;
+          width: min(15vw, 130px);
+          pointer-events: none;
+          z-index: 5;
+          transform-origin: top center;
+          animation: spidermanDescend 4s cubic-bezier(0.25, 1, 0.5, 1) forwards,
+                     spidermanSway 10s ease-in-out infinite 4s;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
-        @keyframes cornerFigureSway {
-          0%, 100% { transform: rotate(-3deg); }
-          50% { transform: rotate(3deg); }
+
+        .spiderman-web {
+          width: 1px;
+          height: min(15vh, 180px);
+          background: rgba(255, 255, 255, 0.22);
+          box-shadow: 0 0 3px rgba(255, 255, 255, 0.1);
         }
+
+        .spiderman-img {
+          width: 100%;
+          height: auto;
+          margin-top: -12px; /* Pull up to join cleanly with the web line */
+          filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
+        }
+
+        @keyframes spidermanDescend {
+          0% {
+            transform: translateY(-380px) rotate(-8deg);
+            opacity: 0;
+          }
+          100% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+          }
+        }
+
+        @keyframes spidermanSway {
+          0%, 100% {
+            transform: rotate(-1.8deg);
+          }
+          50% {
+            transform: rotate(1.8deg);
+          }
+        }
+
+        @media (max-width: 640px) {
+          .spiderman-container {
+            display: none;
+          }
+        }
+
         @media (prefers-reduced-motion: reduce) {
-          .corner-figure-swing { animation: none; }
+          .spiderman-container {
+            animation: none !important;
+            transform: translateY(0) rotate(0deg) !important;
+            opacity: 1 !important;
+          }
         }
       `}</style>
     </div>

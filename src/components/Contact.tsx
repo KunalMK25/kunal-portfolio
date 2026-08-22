@@ -16,7 +16,7 @@ export default function Contact() {
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({});
 
-  const formId = import.meta.env.VITE_FORMSPREE_FORM_ID || "";
+  const formId = import.meta.env.VITE_FORMSPREE_FORM_ID || "placeholder";
   const [formspreeState, sendToFormspree, resetFormspree] = useForm(formId);
 
   useEffect(() => {
