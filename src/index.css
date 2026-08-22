@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+:root {
+  --font-display: "Space Grotesk", ui-sans-serif, sans-serif;
+  --font-body: "Inter", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --red: #d6303f;
+  --red-soft: #d6303f1a;
+  --blue: #2e5aac;
+  --blue-soft: #2e5aac1a;
+
+  /* dark (default) */
+  --bg: #0b0d12;
+  --bg-raised: #12151c;
+  --ink: #eceef2;
+  --ink-muted: #8b90a0;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.16);
+}
+
+:root[data-theme="light"] {
+  --bg: #faf9f6;
+  --bg-raised: #f1efe9;
+  --ink: #14151a;
+  --ink-muted: #63667a;
+  --line: rgba(20, 21, 26, 0.1);
+  --line-strong: rgba(20, 21, 26, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  transition: background-color 0.35s ease, color 0.35s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--red);
+  color: #fff;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Fixed backdrop — does not scroll with content */
+.site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+}
+.site-bg-sky {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 900px 500px at 75% 0%, rgba(46, 90, 172, 0.16), transparent 65%),
+    linear-gradient(to bottom, var(--bg) 0%, var(--bg) 45%, color-mix(in srgb, var(--bg) 65%, black) 100%);
+  transition: background-color 0.35s ease;
+}
+:root[data-theme="light"] .site-bg-sky {
+  background: linear-gradient(to bottom, var(--bg) 0%, var(--bg) 100%);
+}
+.site-bg-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+:root[data-theme="light"] .site-bg-stars {
+  opacity: 0;
+}
+.site-bg-skyline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+}
+.site-bg-window {
+  opacity: 0.16;
+}
+:root[data-theme="light"] .site-bg-window {
+  opacity: 0.1;
+}
+.site-bg-strands {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
